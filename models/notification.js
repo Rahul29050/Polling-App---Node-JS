@@ -12,7 +12,6 @@
 //   },
 // });
 
-// module.exports = mongoose.model('Notification', notificationSchema);
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
@@ -21,7 +20,7 @@ const notificationSchema = new mongoose.Schema({
     required: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId for better referencing
+    type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
     required: true,
   },
@@ -38,10 +37,9 @@ const notificationSchema = new mongoose.Schema({
     default: Date.now,
   }
 }, {
-  timestamps: true // This adds createdAt and updatedAt automatically
+  timestamps: true 
 });
 
-// Create compound index for better query performance
 notificationSchema.index({ userId: 1, createdAt: -1 });
 notificationSchema.index({ userId: 1, isRead: 1 });
 

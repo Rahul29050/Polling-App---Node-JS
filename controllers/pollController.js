@@ -3,7 +3,22 @@ const Poll = require('../models/Poll');
 
 exports.getAllPolls = async (req, res) => {
   try {
-    const polls = await Poll.find().populate('createdBy', 'username');
+    const userId = req.user._id; 
+    
+    const polls = await Poll.find({
+      $or: [
+        { visibility: 'public' },
+        { 
+          visibility: 'private', 
+          allowedUsers: { $in: [userId] }
+        },
+        {
+          visibility: 'private',
+          'createdBy.userId': userId
+        }
+      ]
+    }).populate('createdBy', 'username');
+    
     res.status(200).json(polls);
   } catch (error) {
     console.error(error);
@@ -25,7 +40,7 @@ exports.getUserPolls = async (req, res) => {
 
 exports.createPoll = async (req, res) => {
   try {
-    const { question, options, visibility, duration, durationUnit, createdBy } = req.body;
+    const { question, options, visibility, duration, durationUnit, createdBy, allowedUsers  } = req.body;
 
     const pollOptions = options.map((option) => ({ option, votes: 0 }));
 
@@ -36,6 +51,7 @@ exports.createPoll = async (req, res) => {
       duration,
       durationUnit,
       createdBy,
+      allowedUsers: visibility === 'private' ? allowedUsers : [],
       createdAt: new Date(),
       isOpen: true,
     });
@@ -100,6 +116,16 @@ exports.getPollById = async (req, res) => {
     if (!poll) {
       return res.status(404).json({ message: 'Poll not found' });
     }
+
+    if (poll.visibility === 'private') {
+      const userId = req.user._id;
+      const isAllowed = poll.allowedUsers.some(uid => uid.toString() === userId.toString());
+
+      if (!isAllowed && poll.createdBy.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: 'Access denied to private poll' });
+      }
+    }
+
 
     if (!poll.isOpen) {
       return res.status(403).json({ message: 'Poll duration has ended' });

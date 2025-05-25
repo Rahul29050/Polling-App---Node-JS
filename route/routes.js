@@ -9,6 +9,7 @@ const notificationController = require('../controllers/Notification');
 
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
+router.get('/api/users', userController.getAllUsers);
 
 router.get('/api/polls', verifyAccessToken,pollController.getAllPolls);
 router.get('/api/user/polls', verifyAccessToken, pollController.getUserPolls);
@@ -19,19 +20,10 @@ router.post('/api/vote',verifyAccessToken, pollController.vote);
 router.delete('/api/polls/:id', verifyAccessToken, pollController.deletePoll);
 
 
-// Create notification for all users (when creating a poll)
 router.post('/notifications', notificationController.createNotification);
-
-// Get notifications for a specific user
 router.get('/notifications', notificationController.getNotifications);
-
-// Mark a specific notification as read for a user
 router.patch('/notifications/:notificationId/read', notificationController.markNotificationAsRead);
-
-// Mark all notifications as read for a user
 router.patch('/notifications/read-all', notificationController.markAllNotificationsAsRead);
-
-// Get unread notifications count for a user
 router.get('/notifications/unread-count', async (req, res) => {
   try {
     const { userId } = req.query;
