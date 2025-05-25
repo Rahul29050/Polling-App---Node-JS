@@ -1,5 +1,6 @@
 // controllers/pollController.js
 const Poll = require('../models/Poll');
+const Notification = require('../models/notification'); // Add this if not already imported
 
 exports.getAllPolls = async (req, res) => {
   try {
@@ -55,7 +56,20 @@ exports.createPoll = async (req, res) => {
       createdAt: new Date(),
       isOpen: true,
     });
+
     await poll.save();
+
+    // 🔔 Create notifications
+    if (visibility === 'private' && allowedUsers && allowedUsers.length > 0) {
+      const notifications = allowedUsers.map(userId => ({
+        userId,
+        content: `You have been invited to vote on a private poll: "${question}"`,
+        pollId: poll._id,
+        isRead: false,
+        createdAt: new Date()
+      }));
+      await Notification.insertMany(notifications);
+    }
 
     res.status(201).json({ message: 'Poll created successfully', poll });
   } catch (error) {
@@ -63,6 +77,7 @@ exports.createPoll = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error });
   }
 };
+
 
 exports.deletePoll = async (req, res) => {
   try {
