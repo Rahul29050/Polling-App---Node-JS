@@ -19,8 +19,37 @@ router.post('/api/vote',verifyAccessToken, pollController.vote);
 router.delete('/api/polls/:id', verifyAccessToken, pollController.deletePoll);
 
 
+// Create notification for all users (when creating a poll)
 router.post('/notifications', notificationController.createNotification);
-router.get('/notifications', verifyAccessToken, notificationController.getNotifications);
-router.put('/notifications/:notificationId/read', verifyAccessToken, notificationController.markNotificationAsRead);
+
+// Get notifications for a specific user
+router.get('/notifications', notificationController.getNotifications);
+
+// Mark a specific notification as read for a user
+router.patch('/notifications/:notificationId/read', notificationController.markNotificationAsRead);
+
+// Mark all notifications as read for a user
+router.patch('/notifications/read-all', notificationController.markAllNotificationsAsRead);
+
+// Get unread notifications count for a user
+router.get('/notifications/unread-count', async (req, res) => {
+  try {
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const count = await require('../models/notification').countDocuments({ 
+      userId: userId, 
+      isRead: false 
+    });
+    
+    res.status(200).json({ unreadCount: count });
+  } catch (error) {
+    console.error('Error getting unread count:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;
