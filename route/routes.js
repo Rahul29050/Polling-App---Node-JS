@@ -12,6 +12,11 @@ router.post('/verify-otp', userController.verifyOTP);
 router.post('/resend-otp', userController.resendOTP);
 router.get('/api/users', userController.getAllUsers);
 
+// NEW: Forgot Password routes
+router.post('/forgot-password', userController.forgotPassword);
+router.post('/verify-password-reset-otp', userController.verifyPasswordResetOTP);
+router.post('/reset-password', userController.resetPassword);
+
 router.get('/api/polls', verifyAccessToken,pollController.getAllPolls);
 router.get('/api/user/polls', verifyAccessToken, pollController.getUserPolls);
 router.post('/api/polls',verifyAccessToken, pollController.createPoll);
