@@ -8,6 +8,7 @@ const socketModule = require('./socket');
 const cron = require('node-cron');
 const Poll = require('./models/Poll') ;
 
+require('dotenv').config();
 mongoose.set('strictQuery', false);
 app.use(cors({ origin: '*' }));
 

@@ -6,9 +6,10 @@ const userController = require('../controllers/user');
 const pollController = require('../controllers/pollController');
 const notificationController = require('../controllers/Notification');
 
-
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
+router.post('/verify-otp', userController.verifyOTP);
+router.post('/resend-otp', userController.resendOTP);
 router.get('/api/users', userController.getAllUsers);
 
 router.get('/api/polls', verifyAccessToken,pollController.getAllPolls);
