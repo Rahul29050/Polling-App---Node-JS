@@ -24,6 +24,7 @@ router.get('/api/polls/:id',verifyAccessToken, pollController.getPollById);
 router.patch('/api/polls/update-status/:id', verifyAccessToken, pollController.updatePollStatus);
 router.post('/api/vote',verifyAccessToken, pollController.vote);
 router.delete('/api/polls/:id', verifyAccessToken, pollController.deletePoll);
+router.get('/api/vote/user/:pollId', verifyAccessToken, pollController.checkUserVote);
 
 
 router.post('/notifications', notificationController.createNotification);

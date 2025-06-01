@@ -10,9 +10,8 @@ const userVoteSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  pollId: {
+  optionId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Poll',
   },
 });
 

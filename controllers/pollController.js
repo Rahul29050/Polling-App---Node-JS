@@ -182,7 +182,7 @@ exports.vote = async (req, res) => {
 
     selectedOption.votes += 1;
 
-    poll.votes.push({ userId, optionId });
+    poll.votes.push({ userId, optionId, pollId });
     poll.isVote = true;
 
     await poll.save();
@@ -194,28 +194,34 @@ exports.vote = async (req, res) => {
   }
 };
 
-// exports.checkUserVote = async (req, res) => {
-//   try {
-//     const { pollId } = req.params;
-//     const userId = req.user._id;
+exports.checkUserVote = async (req, res) => {
+  try {
+    const { pollId } = req.params;
+    const userId = req.user._id;
 
-//     const poll = await Poll.findById(pollId);
+    const poll = await Poll.findById(pollId);
+    
+    if (!poll) {
+      return res.status(404).json({ message: 'Poll not found' });
+    }
 
-//     if (!poll) {
-//       return res.status(404).json({ message: 'Poll not found' });
-//     }
+    const userVote = poll.votes.find(vote => vote.userId.equals(userId));
+    
+    if (userVote) {
+      // Find the selected option to return its text
+      const selectedOption = poll.options.find(option => 
+        option._id.equals(userVote.optionId)
+      );
+      
+      return res.status(200).json({ 
+        hasVoted: true, 
+        selectedOption: selectedOption ? selectedOption.option : null
+      });
+    }
 
-//     const userVote = poll.votes.find(vote => vote.userId.equals(userId));
-
-//     if (userVote) {
-//       return res.status(200).json({ hasVoted: true });
-//     }
-
-//     return res.status(200).json({ hasVoted: false });
-//   } catch (error) {
-//     console.error('Error checking user vote:', error);
-//     return res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
-
-
+    res.status(200).json({ hasVoted: false });
+  } catch (error) {
+    console.error('Error checking user vote:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
